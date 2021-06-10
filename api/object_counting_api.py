@@ -10,7 +10,6 @@ total_passed_objects = 0  # using it to count objects
 
 def cumulative_object_counting_x_axis(input_video, detection_graph, category_index, is_color_recognition_enabled, roi,
                                       deviation, custom_object_name):
-    total_passed_objects = 0
 
     # input video
     cap = cv2.VideoCapture(input_video)
@@ -23,6 +22,7 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
     output_movie = cv2.VideoWriter('the_output.avi', fourcc, fps, (width, height))
 
     total_passed_objects = 0
+    actual_number_of_objects = 0
     color = "waiting..."
     with detection_graph.as_default():
         with tf.compat.v1.Session(graph=detection_graph) as sess:
@@ -38,10 +38,14 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
+            index_of_frame = 0
+
             # for all the frames that are extracted from input video
             while (cap.isOpened()):
                 ret, frame = cap.read()
 
+                if ret:
+                    index_of_frame += 1
                 if not ret:
                     print("end of the video file...")
                     break
@@ -74,18 +78,21 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                     line_thickness=4)
 
                 # when the object passed over line and counted, make the color of ROI line green
-                if counter == 1:
-                    cv2.line(input_frame, (roi, 0), (roi, height), (0, 0xFF, 0), 5)
-                else:
-                    cv2.line(input_frame, (roi, 0), (roi, height), (0, 0, 0xFF), 5)
+                # if counter == 1:
+                #     cv2.line(input_frame, (roi, 0), (roi, height), (0, 0xFF, 0), 5)
+                # else:
+                #     cv2.line(input_frame, (roi, 0), (roi, height), (0, 0, 0xFF), 5)
 
-                total_passed_objects = total_passed_objects + counter
+                # total_passed_objects = total_passed_objects + counter
+
+                if index_of_frame % 8 == 0:
+                    actual_number_of_objects = num
 
                 # insert information text to video frame
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(
                     input_frame,
-                    'Detected ' + custom_object_name + ': ' + str(total_passed_objects),
+                    'Detected ' + custom_object_name + ': ' + str(actual_number_of_objects),
                     (10, 35),
                     font,
                     0.8,
@@ -94,16 +101,16 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                     cv2.FONT_HERSHEY_SIMPLEX,
                 )
 
-                cv2.putText(
-                    input_frame,
-                    'ROI Line',
-                    (545, roi - 10),
-                    font,
-                    0.6,
-                    (0, 0, 0xFF),
-                    2,
-                    cv2.LINE_AA,
-                )
+                # cv2.putText(
+                #     input_frame,
+                #     'ROI Line',
+                #     (545, roi - 10),
+                #     font,
+                #     0.6,
+                #     (0, 0, 0xFF),
+                #     2,
+                #     cv2.LINE_AA,
+                # )
 
                 output_movie.write(input_frame)
                 print("writing frame")
