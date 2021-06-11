@@ -61,16 +61,17 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                     np.squeeze(classes).astype(np.int32),
                     np.squeeze(scores),
                     category_index,
+                    width, height,
                     x_reference=roi,
                     deviation=deviation,
                     use_normalized_coordinates=True,
                     line_thickness=4)
 
                 # when the object passed over line and counted, make the color of ROI line green
-                if counter == 1:
-                    cv2.line(input_frame, (roi, 0), (roi, height), (0, 0xFF, 0), 5)
-                else:
-                    cv2.line(input_frame, (roi, 0), (roi, height), (0, 0, 0xFF), 5)
+                # if counter == 1:
+                #     cv2.line(input_frame, (roi, 0), (roi, height), (0, 0xFF, 0), 5)
+                # else:
+                #     cv2.line(input_frame, (roi, 0), (roi, height), (0, 0, 0xFF), 5)
 
                 total_passed_objects = total_passed_objects + counter
 

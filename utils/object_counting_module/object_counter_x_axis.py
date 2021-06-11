@@ -2,15 +2,10 @@ is_object_detected = [0]
 left_position_of_previous_detected_object = [0]
 
 
-def count_objects_x_axis(right, left, roi_position, deviation):
-    if abs(((right + left) / 2) - roi_position) < deviation:
+def count_objects_x_axis(right, left, deviation , width):
+    if abs(((right + left) / 2) - (width/2)) < deviation:
         is_object_detected.insert(0, 1)
-
-    if left < left_position_of_previous_detected_object[0]:
-        direction = "left"
-    else:
-        direction = "right"
 
     left_position_of_previous_detected_object.insert(0, left)
 
-    return direction, is_object_detected
+    return is_object_detected

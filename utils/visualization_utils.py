@@ -25,7 +25,7 @@ from utils.color_recognition_module import color_recognition_api
 
 # Variables
 is_object_detected = [0]
-roi_position = [0]
+# roi_position = [0]
 deviation_value = [0]
 is_color_recognition_enable = [0]
 x_axis = [0]
@@ -68,7 +68,7 @@ def draw_bounding_box_on_image_array(image,
                                      ymin,
                                      xmin,
                                      ymax,
-                                     xmax,
+                                     xmax, width, height,
                                      color='red',
                                      thickness=4,
                                      display_str_list=(),
@@ -91,7 +91,7 @@ def draw_bounding_box_on_image_array(image,
     """
     image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
     is_object_detected = draw_bounding_box_on_image(image_pil, ymin, xmin,
-                                                    ymax, xmax, color,
+                                                    ymax, xmax, width, height, color,
                                                     thickness, display_str_list,
                                                     use_normalized_coordinates)
     np.copyto(image, np.array(image_pil))
@@ -102,11 +102,13 @@ def draw_bounding_box_on_image(image,
                                ymin,
                                xmin,
                                ymax,
-                               xmax,
+                               xmax, width,
+                               height,
                                color='red',
                                thickness=4,
                                display_str_list=(),
-                               use_normalized_coordinates=True):
+                               use_normalized_coordinates=True,
+                               ):
     """Adds a bounding box to an image.
 
     Each string in display_str_list is displayed on a separate line above the
@@ -143,13 +145,9 @@ def draw_bounding_box_on_image(image,
     detected_object_image = image_temp[int(top):int(bottom), int(left):int(right)]
 
     if x_axis[0] == 1:
-        predicted_direction, is_object_detected = object_counter_x_axis.count_objects_x_axis(right, left,
-                                                                                             roi_position[0],
-                                                                                             deviation_value[0])
+        is_object_detected = object_counter_x_axis.count_objects_x_axis(right, left, deviation_value[0], width)
     elif y_axis[0] == 1:
-        predicted_direction, is_object_detected = object_counter_y_axis.count_objects(right, left,
-                                                                                      roi_position[0],
-                                                                                      deviation_value[0])
+        is_object_detected = object_counter_y_axis.count_objects(right, left, deviation_value[0], height)
     if is_color_recognition_enable[0]:
         predicted_color = color_recognition_api.color_recognition(detected_object_image)
 
@@ -341,6 +339,7 @@ def visualize_boxes_and_labels_on_image_array_x_axis(image,
                                                      classes,
                                                      scores,
                                                      category_index,
+                                                     width, height,
                                                      x_reference=None,
                                                      deviation=None,
                                                      use_normalized_coordinates=False,
@@ -387,7 +386,7 @@ def visualize_boxes_and_labels_on_image_array_x_axis(image,
     # that correspond to the same location.
     global class_name
     counter = 0
-    roi_position.insert(0, x_reference)
+    # roi_position.insert(0, x_reference)
     deviation_value.insert(0, deviation)
     x_axis.insert(0, 1)
 
@@ -419,12 +418,13 @@ def visualize_boxes_and_labels_on_image_array_x_axis(image,
                                                               ymin,
                                                               xmin,
                                                               ymax,
-                                                              xmax,
+                                                              xmax, width, height,
                                                               color=color,
                                                               thickness=line_thickness,
                                                               display_str_list=
                                                               box_to_display_str_map[box],
-                                                              use_normalized_coordinates=use_normalized_coordinates)
+                                                              use_normalized_coordinates=use_normalized_coordinates
+                                                              )
 
     if 1 in is_object_detected:
         counter = 1
