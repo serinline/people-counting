@@ -1,3 +1,5 @@
+import math
+
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -20,7 +22,6 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     output_movie = cv2.VideoWriter('the_output.avi', fourcc, fps, (width, height))
 
-    total_passed_objects = 0
     with detection_graph.as_default():
         with tf.compat.v1.Session(graph=detection_graph) as sess:
             # Definite input and output Tensors for detection_graph
@@ -67,19 +68,11 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                     use_normalized_coordinates=True,
                     line_thickness=4)
 
-                # when the object passed over line and counted, make the color of ROI line green
-                # if counter == 1:
-                #     cv2.line(input_frame, (roi, 0), (roi, height), (0, 0xFF, 0), 5)
-                # else:
-                #     cv2.line(input_frame, (roi, 0), (roi, height), (0, 0, 0xFF), 5)
-
-                total_passed_objects = total_passed_objects + counter
-
                 # insert information text to video frame
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(
                     input_frame,
-                    'Detected ' + ': ' + str(total_passed_objects),
+                    'Detected ' + ': ' + str(counter),
                     (10, 35),
                     font,
                     0.8,
@@ -87,17 +80,6 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                     2,
                     cv2.FONT_HERSHEY_SIMPLEX,
                 )
-
-                # cv2.putText(
-                #     input_frame,
-                #     'ROI Line',
-                #     (545, roi - 10),
-                #     font,
-                #     0.6,
-                #     (0, 0, 0xFF),
-                #     2,
-                #     cv2.LINE_AA,
-                # )
 
                 output_movie.write(input_frame)
                 print("writing frame")
@@ -108,4 +90,3 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
 
             cap.release()
             cv2.destroyAllWindows()
-
