@@ -35,6 +35,7 @@ def people_counting(input_video, labels_input_video, detection_graph, category_i
             detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+            detected_expected = []
 
             # for all the frames that are extracted from input video
             while cap.isOpened():
@@ -42,6 +43,9 @@ def people_counting(input_video, labels_input_video, detection_graph, category_i
 
                 if not ret:
                     print("end of the video")
+                    detected_expected, people_expected = [sum(row[i] for row in detected_expected) for i in range(len(detected_expected[0]))]
+                    err = detected_expected / people_expected
+                    print("Average error on video = {}%".format(round(abs(1 - err) * 100, 2)))
                     break
 
                 current_frame = frame
@@ -57,6 +61,16 @@ def people_counting(input_video, labels_input_video, detection_graph, category_i
 
                 # print("Scores: ", scores)
                 # print("NUM: ", num)
+
+                # detect only people
+                boxes = np.squeeze(boxes)
+                scores = np.squeeze(scores)
+                classes = np.squeeze(classes)
+
+                indices = np.argwhere(classes == 1)
+                boxes = np.squeeze(boxes[indices])
+                scores = np.squeeze(scores[indices])
+                classes = np.squeeze(classes[indices])
 
                 # visualize detected objects
                 counter = visualization.visualize_boxes_and_labels_on_image(current_frame,
@@ -74,6 +88,8 @@ def people_counting(input_video, labels_input_video, detection_graph, category_i
                             + " Error : " + str(round(error, 2)) + "%",
                             (10, 35), cv2.FONT_HERSHEY_SIMPLEX,
                             0.8, (0, 0xFF, 0xFF), 2, cv2.FONT_HERSHEY_SIMPLEX)
+
+                detected_expected.append([counter,expected_number_of_people])
 
                 output_movie.write(current_frame)
                 print("processing frame")  # just for debugging
