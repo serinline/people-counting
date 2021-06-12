@@ -42,11 +42,10 @@ def people_counting(input_video, labels_input_video, detection_graph, category_i
                 ret, frame = cap.read()
 
                 if not ret:
-                    print("end of the video")
+                    # print("end of the video")
                     detected_expected, people_expected = [sum(row[i] for row in detected_expected) for i in range(len(detected_expected[0]))]
                     err = detected_expected / people_expected
-                    print("Average error on video = {}%".format(round(abs(1 - err) * 100, 2)))
-                    break
+                    return round(abs(1 - err) * 100, 2)
 
                 current_frame = frame
                 frame_idx = cap.get(cv2.CAP_PROP_POS_FRAMES)
@@ -58,9 +57,6 @@ def people_counting(input_video, labels_input_video, detection_graph, category_i
                 (boxes, scores, classes, num) = sess.run(
                     [detection_boxes, detection_scores, detection_classes, num_detections],
                     feed_dict={image_tensor: image_np_expanded})
-
-                # print("Scores: ", scores)
-                # print("NUM: ", num)
 
                 # detect only people
                 boxes = np.squeeze(boxes)
@@ -92,7 +88,6 @@ def people_counting(input_video, labels_input_video, detection_graph, category_i
                 detected_expected.append([counter,expected_number_of_people])
 
                 output_movie.write(current_frame)
-                print("processing frame")  # just for debugging
                 cv2.imshow('object counting', current_frame)  # for real time processing
 
                 # to stop processing press 'q'
