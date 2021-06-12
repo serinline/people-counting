@@ -44,7 +44,7 @@ def create_category_index(categories):
         e.g., 'cat', 'dog', 'pizza'.
 
       Returns:
-        category_index: a dict containing the same entries as categories, but keyed  by the 'id' field of each category.
+        category_index - a dict containing the same entries as categories, but keyed  by the 'id' field of each category
     """
     category_index = {}
     for cat in categories:
@@ -53,16 +53,16 @@ def create_category_index(categories):
 
 
 def convert_label_map_to_categories(label_map, max_num_classes, use_display_name=True):
-    """Lloads a label map and returns a list of dicts with following keys:
+    """Loads a label map and returns a list of dicts with following keys:
     'id' - (required)
     'name' - (required)
 
   Args:
-    label_map: StringIntLabelMapProto or None(default categories list is created with max_num_classes categories)
-    max_num_classes: maximum number of label indices to include
-    use_display_name: (boolean) choose whether to load 'display_name' field as category name
+    label_map - StringIntLabelMapProto or None(default categories list is created with max_num_classes categories)
+    max_num_classes - maximum number of label indices to include
+    use_display_name - (boolean) choose whether to load 'display_name' field as category name
   Returns:
-    categories: a list of dictionaries representing all possible categories
+    categories - a list of dictionaries representing all possible categories
   """
     categories = []
     list_of_ids_already_added = []
