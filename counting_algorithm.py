@@ -2,10 +2,11 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
+from numpy import genfromtxt
 from utils import visualization
 
 
-def people_counting(input_video, detection_graph, category_index, output_video_name):
+def people_counting(input_video, labels_input_video, detection_graph, category_index, output_video_name):
     """People counting algorithm
     Args:
       input_video - video to process
@@ -21,6 +22,7 @@ def people_counting(input_video, detection_graph, category_index, output_video_n
     fps = int(cap.get(cv2.CAP_PROP_FPS))
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    labels = genfromtxt(labels_input_video, delimiter = ',')
     output_movie = cv2.VideoWriter(output_video_name, fourcc, fps, (width, height))
 
     with detection_graph.as_default():
@@ -43,6 +45,7 @@ def people_counting(input_video, detection_graph, category_index, output_video_n
                     break
 
                 current_frame = frame
+                frame_idx = cap.get(cv2.CAP_PROP_POS_FRAMES)
 
                 # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
                 image_np_expanded = np.expand_dims(current_frame, axis=0)
@@ -52,6 +55,9 @@ def people_counting(input_video, detection_graph, category_index, output_video_n
                     [detection_boxes, detection_scores, detection_classes, num_detections],
                     feed_dict={image_tensor: image_np_expanded})
 
+                # print("Scores: ", scores)
+                # print("NUM: ", num)
+
                 # visualize detected objects
                 counter = visualization.visualize_boxes_and_labels_on_image(current_frame,
                                                                             np.squeeze(boxes),
@@ -59,8 +65,14 @@ def people_counting(input_video, detection_graph, category_index, output_video_n
                                                                             np.squeeze(scores),
                                                                             category_index)
 
+                expected_number_of_people = labels[int(frame_idx)][1]
+                error = abs(expected_number_of_people - counter) * 100 / expected_number_of_people
+
                 # info text
-                cv2.putText(current_frame, 'Detected ' + ': ' + str(counter), (10, 35), cv2.FONT_HERSHEY_SIMPLEX,
+                cv2.putText(current_frame, "Detected : " + str(counter)
+                            + " Expected : " + str(expected_number_of_people)
+                            + " Error : " + str(round(error, 2)) + "%",
+                            (10, 35), cv2.FONT_HERSHEY_SIMPLEX,
                             0.8, (0, 0xFF, 0xFF), 2, cv2.FONT_HERSHEY_SIMPLEX)
 
                 output_movie.write(current_frame)

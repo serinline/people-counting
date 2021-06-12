@@ -52,7 +52,7 @@ def draw_bounding_box_on_image(image, ymin, xmin, ymax, xmax, color='red', thick
 
 
 def visualize_boxes_and_labels_on_image(image, boxes, classes, scores, category_index, max_boxes_to_draw=None,
-                                        min_score_thresh=.5, line_thickness=4):
+                                        min_score_thresh=.3, line_thickness=4):
     """Groups boxes that correspond to the same location and creates a display string for each detection and overlays
     these on the image; modifies the image in place, and returns that same image.
 
